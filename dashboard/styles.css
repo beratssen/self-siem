@@ -17,6 +17,12 @@
   --medium: #e2b42b;
   --low: #3ab4f2;
 
+  /* Grafik serileri: doğrulanmış kategorik paletin koyu tema ilk iki rengi */
+  --series-ok: #3987e5;
+  --series-fail: #d95926;
+  --grid: #1a2439;
+  --axis: #2a3858;
+
   --radius: 10px;
   --sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
   --mono: "Cascadia Mono", "Cascadia Code", ui-monospace, "SFMono-Regular", Consolas, monospace;
@@ -209,7 +215,6 @@ h2 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
   font-size: 30px;
   font-weight: 700;
   line-height: 1.1;
-  font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 
@@ -410,6 +415,255 @@ h2 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
 .playbook ol { margin: 0; padding-left: 18px; font-size: 12.5px; color: #c3cbdc; }
 .playbook li { margin-bottom: 3px; }
 
+/* ---------- Panel başlığı ekleri ---------- */
+
+.panel-sub { margin-top: 2px; font-size: 12px; color: var(--muted); }
+
+.panel-actions { display: flex; align-items: center; gap: 16px; }
+
+.btn-ghost {
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-ghost:hover { color: var(--text); }
+.btn-ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+
+.legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--critical);
+  box-shadow: 0 0 0 2px var(--panel);
+}
+.legend-band {
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  background: rgba(139, 152, 180, 0.12);
+  border: 1px solid rgba(139, 152, 180, 0.18);
+}
+
+.sw-ok { background: var(--series-ok); }
+.sw-fail { background: var(--series-fail); }
+.sw-critical { background: var(--critical); }
+.sw-high { background: var(--high); }
+.sw-medium { background: var(--medium); }
+.sw-low { background: var(--low); }
+
+/* ---------- Zaman çizelgesi ---------- */
+
+.chart { position: relative; padding: 8px 14px 12px; }
+
+.timeline-svg { display: block; overflow: visible; }
+
+.timeline-svg .grid { stroke: var(--grid); stroke-width: 1; }
+.timeline-svg .axis { stroke: var(--axis); stroke-width: 1; }
+.timeline-svg .axis-tick { stroke: var(--axis); stroke-width: 1; }
+
+.timeline-svg .tick {
+  fill: var(--faint);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.timeline-svg .tick-y { text-anchor: end; }
+.timeline-svg .tick-x { text-anchor: middle; }
+
+.timeline-svg .offhours { fill: rgba(139, 152, 180, 0.045); }
+.timeline-svg .offhours-label {
+  fill: var(--faint);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.timeline-svg .bar-ok { fill: var(--series-ok); }
+.timeline-svg .bar-fail { fill: var(--series-fail); }
+.timeline-svg .bin:hover .bar-ok,
+.timeline-svg .bin:hover .bar-fail { filter: brightness(1.25); }
+
+.timeline-svg .hit { fill: transparent; cursor: crosshair; }
+.timeline-svg .bin:hover .hit { fill: rgba(255, 255, 255, 0.035); }
+
+.timeline-svg .peak-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline-svg .marker-dot {
+  fill: var(--sev-color);
+  stroke: var(--panel);
+  stroke-width: 2;
+}
+.timeline-svg .marker-guide {
+  stroke: var(--sev-color);
+  stroke-width: 1;
+  opacity: 0.35;
+}
+.timeline-svg .marker-count { fill: var(--muted); font-size: 11px; font-weight: 600; }
+.timeline-svg .marker .hit { cursor: pointer; }
+.timeline-svg .marker:hover .marker-guide { opacity: 0.8; }
+
+.chart-tooltip {
+  position: absolute;
+  z-index: 5;
+  min-width: 170px;
+  padding: 9px 11px;
+  font-size: 12px;
+  background: #0b1222;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.tt-title { margin-bottom: 6px; font-weight: 600; color: var(--text); }
+.tt-row { display: flex; align-items: center; gap: 8px; color: var(--muted); line-height: 1.7; }
+.tt-swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.tt-value { margin-left: auto; padding-left: 12px; color: var(--text); font-variant-numeric: tabular-nums; }
+
+/* ---------- Tablo görünümü ---------- */
+
+.table-wrap { max-height: 300px; overflow-y: auto; }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.data-table caption { padding-bottom: 8px; text-align: left; color: var(--muted); font-size: 12px; }
+.data-table th {
+  position: sticky;
+  top: 0;
+  padding: 7px 10px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border-strong);
+}
+.data-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.data-table .num, .data-table th:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- MITRE ATT&CK ---------- */
+
+.tactics {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.tactic {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 62px;
+  padding: 8px 10px;
+  background: rgba(139, 152, 180, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: help;
+}
+
+.tactic-step { font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+.tactic-name { font-size: 12px; line-height: 1.25; color: var(--faint); }
+
+.tactic.active {
+  background: color-mix(in srgb, var(--sev-color) 12%, transparent);
+  border-color: color-mix(in srgb, var(--sev-color) 55%, transparent);
+}
+.tactic.active .tactic-name { color: var(--text); font-weight: 600; }
+.tactic.active .tactic-step { color: var(--muted); }
+
+.tactic-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+  font-size: 11px;
+  color: var(--muted);
+}
+.tactic-count::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sev-color);
+}
+
+.techniques {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.technique {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  background: rgba(19, 29, 50, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.technique::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: 8px 0 0 8px;
+  background: var(--sev-color);
+}
+
+.technique-head { display: flex; align-items: center; justify-content: space-between; }
+.technique-id { color: #9fbfff; font-weight: 600; }
+.technique-total { font-size: 12px; color: var(--muted); }
+.technique-name { margin: 0; font-size: 15px; font-weight: 600; }
+.technique-desc { margin: 0; font-size: 12.5px; color: #b5bfd2; }
+
+.technique-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.technique-sev { display: inline-flex; flex-wrap: wrap; gap: 10px; }
+.sev-count { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+.sev-count .chip-dot { background: var(--sev-color); }
+
+.ext-link { font-size: 12px; color: var(--accent); text-decoration: none; }
+.ext-link:hover { text-decoration: underline; }
+
 /* ---------- Veri yok durumu ---------- */
 
 .no-data {
@@ -451,6 +705,8 @@ h2 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
   }
   .area-feed { position: static; max-height: 640px; }
   .kpis { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .tactics { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .panel-head { flex-wrap: wrap; }
 }
 
 @media (max-width: 640px) {
