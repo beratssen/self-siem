@@ -193,6 +193,13 @@ window.SIEMMap = (function (ui) {
   }
 
   function renderList(listHost, sources, layout) {
+    if (!sources.length) {
+      listHost.replaceChildren(
+        el("div", { class: "sources-title", text: "Kaynak IP'ler" }),
+        el("p", { class: "sources-empty", text: "Henüz alarm üreten kaynak yok." }),
+      );
+      return;
+    }
     listHost.replaceChildren(
       el("div", { class: "sources-title", text: "Kaynak IP'ler" }),
       el(
@@ -227,29 +234,40 @@ window.SIEMMap = (function (ui) {
     );
   }
 
-  function mount(host, data) {
+  /** Paneli kurar ve { update(view) } döndürür; dünya şekilleri bir kez projekte edilir. */
+  function mount(host) {
     if (!Array.isArray(window.SIEM_WORLD)) {
       host.replaceChildren(el("p", { class: "feed-empty", text: "Harita verisi (world.js) bulunamadı." }));
-      return;
+      return { update() {} };
     }
 
     const world = projectWorld(window.SIEM_WORLD);
-    const sources = groupSources(data.alerts);
     const mapHost = el("div", { class: "map-canvas" });
     const listHost = el("div", { class: "map-sources" });
     const layout = el("div", { class: "map-layout" }, [mapHost, listHost]);
     host.replaceChildren(layout);
-
     const tooltip = ui.createTooltip(layout);
-    renderList(listHost, sources, layout);
 
+    let current = null;
+    let sources = [];
     let lastWidth = 0;
+
     new ResizeObserver(() => {
-      if (mapHost.clientWidth !== lastWidth) {
+      if (current && mapHost.clientWidth !== lastWidth) {
         lastWidth = mapHost.clientWidth;
-        renderMap(mapHost, world, data, sources, tooltip);
+        renderMap(mapHost, world, current, sources, tooltip);
       }
     }).observe(mapHost);
+
+    return {
+      update(view) {
+        current = view;
+        sources = groupSources(view.alerts);
+        tooltip.hide();
+        renderList(listHost, sources, layout);
+        renderMap(mapHost, world, view, sources, tooltip);
+      },
+    };
   }
 
   return { mount };

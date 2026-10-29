@@ -1,6 +1,9 @@
 /*
  * Olay zaman çizelgesi: giriş denemelerini 15 dakikalık dilimlerde yığılmış sütunlarla
  * gösterir; alarmları üstte işaretler, mesai dışı saatleri gölgeler. Kütüphane yok, saf SVG.
+ *
+ * Eksenler (zaman aralığı ve Y ölçeği) tüm veriden bir kez hesaplanır; canlı akış
+ * sırasında sadece o ana kadarki olaylar çizilir, böylece sütunlar yerinde büyür.
  */
 "use strict";
 
@@ -16,11 +19,17 @@ window.SIEMTimeline = (function (ui) {
   const GAP = 2; // yığılmış segmentler arası yüzey boşluğu
   const MARKER_R = 5;
 
-  /** Olayları 15 dakikalık dilimlere ayırır. */
-  function binEvents(events) {
+  /** Tüm olayları kapsayan, 15 dakikaya hizalı zaman aralığı. */
+  function domainOf(events) {
     const times = events.map((e) => ui.toDate(e.time).getTime());
-    const start = Math.floor(Math.min(...times) / BIN_MS) * BIN_MS;
-    const end = (Math.floor(Math.max(...times) / BIN_MS) + 1) * BIN_MS;
+    return {
+      start: Math.floor(Math.min(...times) / BIN_MS) * BIN_MS,
+      end: (Math.floor(Math.max(...times) / BIN_MS) + 1) * BIN_MS,
+    };
+  }
+
+  /** Olayları verilen aralıktaki 15 dakikalık dilimlere ayırır. */
+  function binEvents(events, start, end) {
     const bins = Array.from({ length: Math.round((end - start) / BIN_MS) }, (_, i) => ({
       start: start + i * BIN_MS,
       ok: 0,
@@ -28,10 +37,11 @@ window.SIEMTimeline = (function (ui) {
     }));
     for (const e of events) {
       const bin = bins[Math.floor((ui.toDate(e.time).getTime() - start) / BIN_MS)];
+      if (!bin) continue;
       if (e.success) bin.ok += 1;
       else bin.fail += 1;
     }
-    return { start, end, bins };
+    return bins;
   }
 
   /** Y ekseni için "temiz" tik değerleri (0, 10, 20...). */
@@ -93,18 +103,16 @@ window.SIEMTimeline = (function (ui) {
     return `${ui.shortFmt.format(new Date(bin.start))} – ${ui.timeFmt.format(new Date(bin.start + BIN_MS))}`;
   }
 
-  function renderChart(host, data, tooltip) {
+  function renderChart(host, view, domain, tooltip) {
     const width = host.clientWidth;
     if (!width) return;
 
-    const { start, end, bins } = binEvents(data.events);
+    const { start, end, top, ticks } = domain;
+    const bins = binEvents(view.events, start, end);
     const plotW = width - M.left - M.right;
     const plotH = HEIGHT - M.top - M.bottom;
     const baseline = M.top + plotH;
     const x = (t) => M.left + ((t - start) / (end - start)) * plotW;
-    const maxTotal = Math.max(1, ...bins.map((b) => b.ok + b.fail));
-    // %15 pay: en yüksek sütunun etiketi alarm işaretleriyle çakışmasın
-    const { top, ticks } = niceTicks(maxTotal * 1.15);
     const y = (v) => baseline - (v / top) * plotH;
     const slot = plotW / bins.length;
     const barW = Math.max(2, Math.min(24, slot - GAP));
@@ -152,7 +160,6 @@ window.SIEMTimeline = (function (ui) {
     }
 
     // Sütunlar: başarılı altta, başarısız üstte; en üst segmentin ucu yuvarlak
-    const peak = bins.reduce((best, b) => (b.ok + b.fail > best.ok + best.fail ? b : best), bins[0]);
     bins.forEach((bin, i) => {
       const bx = M.left + i * slot + (slot - barW) / 2;
       const okH = baseline - y(bin.ok);
@@ -182,19 +189,22 @@ window.SIEMTimeline = (function (ui) {
     });
 
     // Sadece en yüksek sütunun değeri doğrudan yazılır
-    const peakIndex = bins.indexOf(peak);
-    root.append(
-      svg("text", {
-        class: "peak-label",
-        x: M.left + peakIndex * slot + slot / 2,
-        y: y(peak.ok + peak.fail) - 8,
-        text: ui.numberFmt.format(peak.ok + peak.fail),
-      }),
-    );
+    const peakIndex = bins.reduce((best, b, i) => (b.ok + b.fail > bins[best].ok + bins[best].fail ? i : best), 0);
+    const peakTotal = bins[peakIndex].ok + bins[peakIndex].fail;
+    if (peakTotal > 0) {
+      root.append(
+        svg("text", {
+          class: "peak-label",
+          x: M.left + peakIndex * slot + slot / 2,
+          y: y(peakTotal) - 8,
+          text: ui.numberFmt.format(peakTotal),
+        }),
+      );
+    }
 
     // Alarm işaretleri (üst şerit) ve zemine inen ince kılavuz çizgisi
     const laneY = M.top - 24;
-    for (const cluster of clusterAlerts(data.alerts, x)) {
+    for (const cluster of clusterAlerts(view.alerts, x)) {
       const severity = ui.topSeverity(cluster.alerts);
       const group = svg("g", { class: `marker sev-${severity}` }, [
         svg("line", { class: "marker-guide", x1: cluster.cx, x2: cluster.cx, y1: laneY + MARKER_R, y2: baseline }),
@@ -217,12 +227,21 @@ window.SIEMTimeline = (function (ui) {
       root.append(group);
     }
 
+    // Canlı akış: oynatma çizgisi ve henüz gelmemiş zaman
+    if (view.replaying) {
+      const px = x(Math.min(Math.max(view.cursor, start), end));
+      root.append(
+        svg("rect", { class: "future", x: px, y: M.top - 8, width: Math.max(0, width - M.right - px), height: plotH + 8 }),
+        svg("line", { class: "playhead", x1: px, x2: px, y1: M.top - 8, y2: baseline }),
+        svg("circle", { class: "playhead-dot", cx: px, cy: baseline, r: 3.5 }),
+      );
+    }
+
     host.replaceChildren(root);
   }
 
-  function renderTable(host, data) {
-    const { bins } = binEvents(data.events);
-    const rows = bins.filter((b) => b.ok || b.fail);
+  function renderTable(host, view, domain) {
+    const rows = binEvents(view.events, domain.start, domain.end).filter((b) => b.ok || b.fail);
     host.replaceChildren(
       el("div", { class: "table-wrap" }, [
         el("table", { class: "data-table" }, [
@@ -245,32 +264,47 @@ window.SIEMTimeline = (function (ui) {
     );
   }
 
-  /** Paneli kurar: grafik/tablo geçişi, yeniden boyutlandırmada tekrar çizim. */
-  function mount(panel, data) {
+  /**
+   * Paneli kurar ve { update(view) } döndürür. Eksenler `full` veriden sabitlenir;
+   * update() o anki görünümü (canlı akışta kısmi veri) çizer.
+   */
+  function mount(panel, full) {
     const host = panel.querySelector("[data-chart]");
     const toggle = panel.querySelector("[data-view-toggle]");
     const tooltip = ui.createTooltip(panel.querySelector(".chart"));
-    let view = "chart";
+
+    const { start, end } = domainOf(full.events);
+    const maxTotal = Math.max(1, ...binEvents(full.events, start, end).map((b) => b.ok + b.fail));
+    // %15 pay: en yüksek sütunun etiketi alarm işaretleriyle çakışmasın
+    const domain = { start, end, ...niceTicks(maxTotal * 1.15) };
+
+    let current = full;
+    let mode = "chart";
     let lastWidth = 0;
 
-    const draw = () => (view === "chart" ? renderChart(host, data, tooltip) : renderTable(host, data));
+    const draw = () => (mode === "chart" ? renderChart(host, current, domain, tooltip) : renderTable(host, current, domain));
 
     toggle.addEventListener("click", () => {
-      view = view === "chart" ? "table" : "chart";
-      toggle.textContent = view === "chart" ? "Tablo" : "Grafik";
-      toggle.setAttribute("aria-pressed", String(view === "table"));
+      mode = mode === "chart" ? "table" : "chart";
+      toggle.textContent = mode === "chart" ? "Tablo" : "Grafik";
+      toggle.setAttribute("aria-pressed", String(mode === "table"));
       tooltip.hide();
       draw();
     });
 
     new ResizeObserver(() => {
-      if (view === "chart" && host.clientWidth !== lastWidth) {
+      if (mode === "chart" && host.clientWidth !== lastWidth) {
         lastWidth = host.clientWidth;
         draw();
       }
     }).observe(host);
 
-    draw();
+    return {
+      update(view) {
+        current = view;
+        draw();
+      },
+    };
   }
 
   return { mount };

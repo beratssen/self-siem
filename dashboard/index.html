@@ -19,8 +19,21 @@
       </div>
     </div>
 
+    <div class="replay" aria-label="Canlı akış kontrolleri">
+      <button class="btn-replay" id="replay-toggle" type="button">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path id="replay-icon" d="M5 3.2v9.6L13 8 5 3.2Z" /></svg>
+        <span id="replay-label">Canlı izle</span>
+      </button>
+      <button class="btn-ghost" id="replay-speed" type="button" title="Oynatma hızı">1×</button>
+      <div class="replay-clock" id="replay-clock" hidden>
+        <span class="replay-time" id="replay-time"></span>
+        <span class="replay-track"><span class="replay-bar" id="replay-bar"></span></span>
+      </div>
+      <button class="btn-ghost" id="replay-stop" type="button" hidden>Bitir</button>
+    </div>
+
     <div class="topbar-meta">
-      <span class="status"><span class="status-dot"></span>Analiz tamamlandı</span>
+      <span class="status" id="status"><span class="status-dot"></span><span id="status-text">Analiz tamamlandı</span></span>
       <span class="meta-item">Kaynak <strong id="meta-source">-</strong></span>
       <span class="meta-item">Oluşturulma <strong id="meta-generated">-</strong></span>
       <span class="badge-demo" title="IP adresleri dokümantasyon aralıklarındandır, konumlar simüle edilmiştir">Demo verisi</span>
@@ -89,6 +102,8 @@
     </aside>
   </main>
 
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
   <footer class="footer">
     Demo verisi: IP adresleri RFC 5737 dokümantasyon aralıklarındandır ve konumlar simüle edilmiştir.
     Harita: Natural Earth (kamu malı).
@@ -101,6 +116,7 @@
   <script src="timeline.js"></script>
   <script src="mitre.js"></script>
   <script src="map.js"></script>
+  <script src="replay.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
