@@ -757,12 +757,16 @@ h2 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
 .timeline-svg .playhead { stroke: var(--accent); stroke-width: 1.5; }
 .timeline-svg .playhead-dot { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
 
-/* Yeni alarm: akışa parlayarak düşer */
-.alert.is-new { animation: alert-in 1.4s ease-out; }
+/* Yeni alarm: akışa parlayarak düşer. Bilerek opacity kullanılmaz: animasyon
+   herhangi bir karede takılsa bile alarm her zaman görünür kalmalı. */
+.alert.is-new { animation: alert-in 1.6s ease-out; }
 
 @keyframes alert-in {
-  0% { transform: translateY(-8px); opacity: 0; box-shadow: 0 0 0 0 transparent; }
-  20% { transform: none; opacity: 1; box-shadow: 0 0 0 2px var(--sev-color), 0 0 24px color-mix(in srgb, var(--sev-color) 45%, transparent); }
+  0% {
+    transform: translateY(-6px);
+    box-shadow: 0 0 0 2px var(--sev-color), 0 0 24px color-mix(in srgb, var(--sev-color) 45%, transparent);
+  }
+  25% { transform: none; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
 
