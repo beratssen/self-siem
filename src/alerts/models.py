@@ -13,6 +13,16 @@ class Severity(str, Enum):
 
 
 @dataclass(frozen=True)
+class GeoLocation:
+    country: str
+    city: str
+    lat: float
+    lon: float
+    internal: bool = False  # True: kurum içi ağ adresi
+    simulated: bool = False  # True: gerçek GeoIP verisi değil, demo için atanmış konum
+
+
+@dataclass(frozen=True)
 class Alert:
     rule: str  # kuralın adı, ör. "ssh_brute_force"
     mitre: str  # MITRE ATT&CK kodu, ör. "T1110"
@@ -23,3 +33,4 @@ class Alert:
     first_seen: datetime
     last_seen: datetime
     description: str
+    geo: GeoLocation | None = None  # zenginleştirme aşamasında doldurulur

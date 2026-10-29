@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 from src.alerts import Alert, Severity, save_alerts
+from src.enrich import SimulatedGeoProvider, enrich_alerts
 from src.parser import parse_file
 from src.rules import (
     detect_account_takeover,
@@ -44,6 +45,7 @@ def analyze(log_path: Path) -> list[Alert]:
     # Kurallar olayları birden fazla kez dolaşır, bu yüzden listeye çeviriyoruz
     events = list(parse_file(log_path))
     alerts = [alert for rule in RULES for alert in rule(events)]
+    alerts = enrich_alerts(alerts, SimulatedGeoProvider())
     return sorted(alerts, key=lambda a: (SEVERITY_ORDER[a.severity], a.first_seen))
 
 
