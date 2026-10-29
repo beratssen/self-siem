@@ -21,7 +21,7 @@ ATTACKER_BRUTE = "203.0.113.5"
 ATTACKER_SPRAY = "198.51.100.23"
 ATTACKER_TAKEOVER = "203.0.113.77"
 
-NORMAL_USERS = ["berat", "ayse", "mehmet", "zeynep", "admin"]
+NORMAL_USERS = ["can", "ayse", "mehmet", "zeynep", "admin"]
 INTERNAL_IPS = ["192.168.1.10", "192.168.1.11", "192.168.1.12", "192.168.1.20"]
 SPRAY_TARGETS = NORMAL_USERS + ["root", "test", "guest", "oracle", "ubuntu"]
 
