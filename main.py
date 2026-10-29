@@ -10,9 +10,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from src.alerts import Alert, Severity, save_alerts
+from src.alerts import Alert, Severity, save_alerts, save_dashboard_data
 from src.enrich import SimulatedGeoProvider, enrich_alerts
-from src.parser import parse_file
+from src.parser import LogEvent, parse_file
 from src.rules import (
     detect_account_takeover,
     detect_brute_force,
@@ -41,12 +41,13 @@ COLORS = {
 RESET = "\033[0m"
 
 
-def analyze(log_path: Path) -> list[Alert]:
+def analyze(log_path: Path) -> tuple[list[LogEvent], list[Alert]]:
     # Kurallar olayları birden fazla kez dolaşır, bu yüzden listeye çeviriyoruz
     events = list(parse_file(log_path))
     alerts = [alert for rule in RULES for alert in rule(events)]
     alerts = enrich_alerts(alerts, SimulatedGeoProvider())
-    return sorted(alerts, key=lambda a: (SEVERITY_ORDER[a.severity], a.first_seen))
+    alerts.sort(key=lambda a: (SEVERITY_ORDER[a.severity], a.first_seen))
+    return events, alerts
 
 
 def format_alert(alert: Alert, color: bool) -> str:
@@ -65,6 +66,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="self-siem: SSH log analizi ve saldırı tespiti")
     parser.add_argument("--log", type=Path, default=ROOT / "data" / "auth.log")
     parser.add_argument("--out", type=Path, default=ROOT / "data" / "alerts.json")
+    parser.add_argument("--dashboard", type=Path, default=ROOT / "dashboard" / "data.js")
     args = parser.parse_args()
 
     if not args.log.exists():
@@ -74,14 +76,16 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     color = sys.stdout.isatty()
 
-    alerts = analyze(args.log)
+    events, alerts = analyze(args.log)
     print(f"self-siem | {args.log.name} analiz edildi | {len(alerts)} alarm\n")
     for alert in alerts:
         print(format_alert(alert, color))
         print()
 
     save_alerts(alerts, args.out)
+    save_dashboard_data(alerts, events, args.dashboard, source=args.log.name)
     print(f"Alarmlar kaydedildi: {args.out}")
+    print(f"Dashboard verisi: {args.dashboard}  (dashboard/index.html dosyasını aç)")
 
 
 if __name__ == "__main__":

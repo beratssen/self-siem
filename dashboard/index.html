@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>self-siem | Güvenlik Olay Paneli</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2.5 4.5 5.4v5.8c0 4.7 3.2 8.9 7.5 10.3 4.3-1.4 7.5-5.6 7.5-10.3V5.4L12 2.5Z" />
+        <path d="m8.8 12.1 2.3 2.3 4.2-4.6" />
+      </svg>
+      <div>
+        <div class="brand-name">self-siem</div>
+        <div class="brand-sub">Güvenlik Olay Paneli</div>
+      </div>
+    </div>
+
+    <div class="topbar-meta">
+      <span class="status"><span class="status-dot"></span>Analiz tamamlandı</span>
+      <span class="meta-item">Kaynak <strong id="meta-source">-</strong></span>
+      <span class="meta-item">Oluşturulma <strong id="meta-generated">-</strong></span>
+      <span class="badge-demo" title="IP adresleri dokümantasyon aralıklarındandır, konumlar simüle edilmiştir">Demo verisi</span>
+    </div>
+  </header>
+
+  <main class="layout" id="app">
+    <section class="kpis" id="kpis" aria-label="Özet göstergeler"></section>
+
+    <section class="panel area-timeline" aria-labelledby="timeline-title">
+      <header class="panel-head">
+        <h2 id="timeline-title">Olay Zaman Çizelgesi</h2>
+      </header>
+      <div class="panel-body placeholder" id="timeline">Bu panel bir sonraki adımda eklenecek.</div>
+    </section>
+
+    <section class="panel area-map" aria-labelledby="map-title">
+      <header class="panel-head">
+        <h2 id="map-title">Saldırı Kaynakları</h2>
+      </header>
+      <div class="panel-body placeholder" id="map">Bu panel bir sonraki adımda eklenecek.</div>
+    </section>
+
+    <section class="panel area-mitre" aria-labelledby="mitre-title">
+      <header class="panel-head">
+        <h2 id="mitre-title">MITRE ATT&amp;CK</h2>
+      </header>
+      <div class="panel-body placeholder" id="mitre">Bu panel bir sonraki adımda eklenecek.</div>
+    </section>
+
+    <aside class="panel area-feed" aria-labelledby="feed-title">
+      <header class="panel-head">
+        <h2 id="feed-title">Alarm Akışı</h2>
+        <span class="panel-count" id="feed-count"></span>
+      </header>
+      <div class="feed-tools">
+        <div class="chips" id="severity-filters" role="group" aria-label="Önem derecesine göre filtrele"></div>
+        <input class="search" id="feed-search" type="search" placeholder="IP, hesap veya kural ara…" aria-label="Alarmlarda ara">
+      </div>
+      <ol class="feed" id="feed"></ol>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    Demo verisi: IP adresleri RFC 5737 dokümantasyon aralıklarındandır ve konumlar simüle edilmiştir.
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
