@@ -53,9 +53,17 @@
 
     <section class="panel area-map" aria-labelledby="map-title">
       <header class="panel-head">
-        <h2 id="map-title">Saldırı Kaynakları</h2>
+        <div>
+          <h2 id="map-title">Saldırı Kaynakları</h2>
+          <div class="panel-sub">Alarm üreten IP'lerin konumu ve hedef</div>
+        </div>
+        <ul class="legend" aria-label="Lejant">
+          <li><span class="legend-dot"></span>Saldırgan (önem rengi)</li>
+          <li><span class="legend-office"></span>Ofis</li>
+          <li><span class="legend-arc"></span>Saldırı yönü</li>
+        </ul>
       </header>
-      <div class="panel-body placeholder" id="map">Bu panel bir sonraki adımda eklenecek.</div>
+      <div class="panel-body map-body" id="map"></div>
     </section>
 
     <section class="panel area-mitre" aria-labelledby="mitre-title">
@@ -83,13 +91,16 @@
 
   <footer class="footer">
     Demo verisi: IP adresleri RFC 5737 dokümantasyon aralıklarındandır ve konumlar simüle edilmiştir.
+    Harita: Natural Earth (kamu malı).
   </footer>
 
   <script src="data.js"></script>
+  <script src="world.js"></script>
   <script src="utils.js"></script>
   <script src="rules.js"></script>
   <script src="timeline.js"></script>
   <script src="mitre.js"></script>
+  <script src="map.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

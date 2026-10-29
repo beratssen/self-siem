@@ -8,7 +8,7 @@ from typing import Iterable
 
 from src.parser import LogEvent
 
-from .models import Alert
+from .models import Alert, GeoLocation
 
 
 def alert_to_dict(alert: Alert) -> dict:
@@ -36,7 +36,11 @@ def save_alerts(alerts: Iterable[Alert], path: str | Path) -> None:
 
 
 def save_dashboard_data(
-    alerts: Iterable[Alert], events: Iterable[LogEvent], path: str | Path, source: str
+    alerts: Iterable[Alert],
+    events: Iterable[LogEvent],
+    path: str | Path,
+    source: str,
+    office: GeoLocation | None = None,
 ) -> None:
     """Dashboard için alarmları ve olayları bir JavaScript dosyasına yazar.
 
@@ -49,6 +53,7 @@ def save_dashboard_data(
     payload = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "source": source,
+        "office": asdict(office) if office else None,
         "alerts": [alert_to_dict(a) for a in alerts],
         "events": [event_to_dict(e) for e in events],
     }

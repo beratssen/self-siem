@@ -20,6 +20,7 @@ class GeoLocation:
     lon: float
     internal: bool = False  # True: kurum içi ağ adresi
     simulated: bool = False  # True: gerçek GeoIP verisi değil, demo için atanmış konum
+    country_code: str | None = None  # ISO 3166-1 alpha-3, ör. "TUR" (haritada ülkeyi boyamak için)
 
 
 @dataclass(frozen=True)

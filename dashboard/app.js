@@ -223,4 +223,5 @@
   setupFeed(data.alerts);
   window.SIEMTimeline.mount(document.getElementById("timeline-panel"), data);
   window.SIEMMitre.mount(document.getElementById("mitre"), data);
+  window.SIEMMap.mount(document.getElementById("map"), data);
 })(window.SIEMUI, window.SIEMRules);

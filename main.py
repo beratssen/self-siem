@@ -22,6 +22,9 @@ from src.rules import (
 
 ROOT = Path(__file__).resolve().parent
 
+# Demo IP'leri için simüle konumlar; gerçek veride GeoLite2 gibi bir sağlayıcıyla değiştirilir.
+GEO_PROVIDER = SimulatedGeoProvider()
+
 # Yeni bir kural yazdığımızda sadece bu listeye eklememiz yeterli.
 RULES = [
     detect_brute_force,
@@ -45,7 +48,7 @@ def analyze(log_path: Path) -> tuple[list[LogEvent], list[Alert]]:
     # Kurallar olayları birden fazla kez dolaşır, bu yüzden listeye çeviriyoruz
     events = list(parse_file(log_path))
     alerts = [alert for rule in RULES for alert in rule(events)]
-    alerts = enrich_alerts(alerts, SimulatedGeoProvider())
+    alerts = enrich_alerts(alerts, GEO_PROVIDER)
     alerts.sort(key=lambda a: (SEVERITY_ORDER[a.severity], a.first_seen))
     return events, alerts
 
@@ -83,7 +86,7 @@ def main() -> None:
         print()
 
     save_alerts(alerts, args.out)
-    save_dashboard_data(alerts, events, args.dashboard, source=args.log.name)
+    save_dashboard_data(alerts, events, args.dashboard, source=args.log.name, office=GEO_PROVIDER.office)
     print(f"Alarmlar kaydedildi: {args.out}")
     print(f"Dashboard verisi: {args.dashboard}  (dashboard/index.html dosyasını aç)")
 

@@ -1,7 +1,16 @@
 // self-siem tarafından otomatik üretildi, elle düzenlemeyin.
 window.SIEM_DATA = {
-  "generated_at": "2026-10-30T02:27:46",
+  "generated_at": "2026-10-30T02:43:39",
   "source": "auth.log",
+  "office": {
+    "country": "Türkiye",
+    "city": "İstanbul",
+    "lat": 41.0082,
+    "lon": 28.9784,
+    "internal": true,
+    "simulated": false,
+    "country_code": "TUR"
+  },
   "alerts": [
     {
       "rule": "ssh_account_takeover",
@@ -19,7 +28,8 @@ window.SIEM_DATA = {
         "lat": -23.5505,
         "lon": -46.6333,
         "internal": false,
-        "simulated": true
+        "simulated": true,
+        "country_code": "BRA"
       }
     },
     {
@@ -38,7 +48,8 @@ window.SIEM_DATA = {
         "lat": 52.3676,
         "lon": 4.9041,
         "internal": false,
-        "simulated": true
+        "simulated": true,
+        "country_code": "NLD"
       }
     },
     {
@@ -57,7 +68,8 @@ window.SIEM_DATA = {
         "lat": -23.5505,
         "lon": -46.6333,
         "internal": false,
-        "simulated": true
+        "simulated": true,
+        "country_code": "BRA"
       }
     },
     {
@@ -76,7 +88,8 @@ window.SIEM_DATA = {
         "lat": 1.3521,
         "lon": 103.8198,
         "internal": false,
-        "simulated": true
+        "simulated": true,
+        "country_code": "SGP"
       }
     },
     {
@@ -95,7 +108,8 @@ window.SIEM_DATA = {
         "lat": 41.0082,
         "lon": 28.9784,
         "internal": true,
-        "simulated": false
+        "simulated": false,
+        "country_code": "TUR"
       }
     }
   ],

@@ -21,7 +21,7 @@ class GeoProvider(Protocol):
 
 
 # Kurum içi ağın (ofis) konumu; iç ağ adresleri hep buraya eşlenir.
-OFFICE = GeoLocation("Türkiye", "İstanbul", 41.0082, 28.9784, internal=True)
+OFFICE = GeoLocation("Türkiye", "İstanbul", 41.0082, 28.9784, internal=True, country_code="TUR")
 
 # Kurum içi sayılan aralıklar (RFC 1918 + loopback). ipaddress.is_private KULLANMIYORUZ:
 # o, 203.0.113.x gibi dokümantasyon aralıklarını da "özel" sayar.
@@ -34,9 +34,9 @@ INTERNAL_NETWORKS = [
 
 # Demo saldırgan IP'leri -> simüle edilmiş konumlar
 DEMO_LOCATIONS: dict[str, GeoLocation] = {
-    "203.0.113.5": GeoLocation("Hollanda", "Amsterdam", 52.3676, 4.9041, simulated=True),
-    "198.51.100.23": GeoLocation("Singapur", "Singapur", 1.3521, 103.8198, simulated=True),
-    "203.0.113.77": GeoLocation("Brezilya", "São Paulo", -23.5505, -46.6333, simulated=True),
+    "203.0.113.5": GeoLocation("Hollanda", "Amsterdam", 52.3676, 4.9041, simulated=True, country_code="NLD"),
+    "198.51.100.23": GeoLocation("Singapur", "Singapur", 1.3521, 103.8198, simulated=True, country_code="SGP"),
+    "203.0.113.77": GeoLocation("Brezilya", "São Paulo", -23.5505, -46.6333, simulated=True, country_code="BRA"),
 }
 
 
@@ -45,6 +45,7 @@ class SimulatedGeoProvider:
 
     def __init__(self, table: dict[str, GeoLocation] | None = None) -> None:
         self.table = DEMO_LOCATIONS if table is None else table
+        self.office = OFFICE  # dashboard haritasında saldırı yaylarının hedefi
 
     def lookup(self, ip: str) -> GeoLocation | None:
         try:

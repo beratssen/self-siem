@@ -17,6 +17,7 @@ def test_demo_attacker_ip_gets_simulated_location():
 
     assert geo is not None
     assert geo.city == "Amsterdam"
+    assert geo.country_code == "NLD"
     assert geo.simulated is True
     assert geo.internal is False
 
