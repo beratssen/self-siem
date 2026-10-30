@@ -1,4 +1,10 @@
-﻿# self-siem
+﻿<div align="center">
+
+# self-siem
+
+**English** · [Türkçe](README.tr.md)
+
+</div>
 
 A small, end-to-end **SIEM (Security Information and Event Management)** built from scratch in Python
 and plain HTML/CSS/JS. It parses SSH authentication logs, detects attacks with sliding-window rules
@@ -82,7 +88,7 @@ flowchart LR
 Requires Python 3.10+ (developed on 3.14). The detection engine uses only the standard library.
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/beratssen/self-siem.git
 cd self-siem
 
 python tools/generate_logs.py   # writes data/auth.log (226 events, 4 attack scenarios)
