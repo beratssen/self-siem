@@ -156,3 +156,12 @@ self-siem/
 
 - Country boundaries: [Natural Earth](https://www.naturalearthdata.com/) (public domain)
 - Technique and tactic references: [MITRE ATT&CK®](https://attack.mitre.org/)
+
+## Author
+
+Built by **[@beratssen](https://github.com/beratssen)** as a hands-on project to learn how a SIEM works
+from the inside, from the first log line to the analyst's screen.
+
+## License
+
+[MIT](LICENSE)
