@@ -5,6 +5,8 @@ and plain HTML/CSS/JS. It parses SSH authentication logs, detects attacks with s
 mapped to **MITRE ATT&CK**, enriches alerts with geolocation, and presents everything on a
 SOC-style dashboard with a **live replay mode**.
 
+**[▶ Live demo](https://beratssen.github.io/self-siem/dashboard/)**: open it and press **Canlı izle** to replay the attack day.
+
 ![self-siem dashboard](docs/images/dashboard.png)
 
 > **Demo data.** Logs are synthetic, IP addresses come from the RFC 5737 documentation ranges
